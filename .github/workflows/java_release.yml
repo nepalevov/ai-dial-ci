@@ -54,6 +54,8 @@ env:
 jobs:
   test:
     uses: ./.github/workflows/java_test.yml
+    permissions:
+      contents: write # for nested dependency-submission job
     with:
       bypass_checks: ${{ inputs.bypass_checks }}
       enable_style_checks: ${{ inputs.enable_style_checks }}

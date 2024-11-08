@@ -31,6 +31,11 @@ on:
         type: boolean
         default: false
         description: Do not fail pipeline if ORT scan failed
+      dependency_graph_action:
+        type: string
+        description: "Action to perform with dependency graph (generate-and-submit, generate-and-upload, download-and-submit)"
+        default: "generate-and-submit"
+        required: false
       java_version:
         type: string
         default: "17"
@@ -74,6 +79,13 @@ jobs:
         shell: bash
         run: |
           ./gradlew check || { echo "::error::Tests failed" && exit 1; } # TODO: figure out why we need to capture exit code
+
+  dependency-submission:
+    uses: ./.github/workflows/java_gradle_dependency_submission.yml
+    with:
+      java_version: ${{ inputs.java_version }}
+      java_distribution: ${{ inputs.java_distribution }}
+      dependency_graph_action: ${{ inputs.dependency_graph_action }}
 
   ort:
     if: ${{ inputs.enable_ort }}

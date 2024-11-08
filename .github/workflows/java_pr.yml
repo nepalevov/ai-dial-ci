@@ -64,6 +64,9 @@ jobs:
       bypass_ort: ${{ inputs.bypass_ort }}
       java_version: ${{ inputs.java_version }}
       java_distribution: ${{ inputs.java_distribution }}
+      # On untrusted workflow scenario (e.g. PR from fork) we shouldn't grant contents: write, so generating and uploading graph without submitting.
+      # It's expected that there will be `submit-dependency-graph` from (another) secured workflow to proceed.
+      dependency_graph_action: "generate-and-upload"
 
   build:
     runs-on: ubuntu-latest
