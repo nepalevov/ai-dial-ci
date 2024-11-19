@@ -40,7 +40,7 @@ on:
 
 jobs:
   run_tests:
-    uses: epam/ai-dial-ci/.github/workflows/node_pr.yml@main
+    uses: nepalevov/ai-dial-ci/.github/workflows/node_pr.yml@main
     secrets: inherit
 ```
 
@@ -59,7 +59,7 @@ concurrency:
 
 jobs:
   release:
-    uses: epam/ai-dial-ci/.github/workflows/node_release.yml@main
+    uses: nepalevov/ai-dial-ci/.github/workflows/node_release.yml@main
     secrets: inherit
 ```
 
@@ -74,7 +74,7 @@ on:
 
 jobs:
   run_tests:
-    uses: epam/ai-dial-ci/.github/workflows/java_pr.yml@main
+    uses: nepalevov/ai-dial-ci/.github/workflows/java_pr.yml@main
     secrets: inherit
 ```
 
@@ -93,7 +93,7 @@ concurrency:
 
 jobs:
   release:
-    uses: epam/ai-dial-ci/.github/workflows/java_release.yml@main
+    uses: nepalevov/ai-dial-ci/.github/workflows/java_release.yml@main
     secrets: inherit
 ```
 
@@ -108,7 +108,7 @@ on:
 
 jobs:
   run_tests:
-    uses: epam/ai-dial-ci/.github/workflows/python_docker_pr.yml@main
+    uses: nepalevov/ai-dial-ci/.github/workflows/python_docker_pr.yml@main
     secrets: inherit
 ```
 
@@ -127,7 +127,7 @@ concurrency:
 
 jobs:
   release:
-    uses: epam/ai-dial-ci/.github/workflows/python_docker_release.yml@main
+    uses: nepalevov/ai-dial-ci/.github/workflows/python_docker_release.yml@main
     secrets: inherit
 ```
 
@@ -142,7 +142,7 @@ on:
 
 jobs:
   run_tests:
-    uses: epam/ai-dial-ci/.github/workflows/python_package_pr.yml@main
+    uses: nepalevov/ai-dial-ci/.github/workflows/python_package_pr.yml@main
     secrets: inherit
 ```
 
@@ -161,7 +161,7 @@ concurrency:
 
 jobs:
   release:
-    uses: epam/ai-dial-ci/.github/workflows/python_package_release.yml@main
+    uses: nepalevov/ai-dial-ci/.github/workflows/python_package_release.yml@main
     secrets: inherit
 ```
 
@@ -176,7 +176,7 @@ on:
 
 jobs:
   run_tests:
-    uses: epam/ai-dial-ci/.github/workflows/generic_docker_pr.yml@main
+    uses: nepalevov/ai-dial-ci/.github/workflows/generic_docker_pr.yml@main
     secrets: inherit
 ```
 
@@ -195,7 +195,7 @@ concurrency:
 
 jobs:
   release:
-    uses: epam/ai-dial-ci/.github/workflows/generic_docker_release.yml@main
+    uses: nepalevov/ai-dial-ci/.github/workflows/generic_docker_release.yml@main
     secrets: inherit
 ```
 
@@ -217,7 +217,7 @@ concurrency:
 
 jobs:
   pr-title-check:
-    uses: epam/ai-dial-ci/.github/workflows/pr-title-check.yml@main
+    uses: nepalevov/ai-dial-ci/.github/workflows/pr-title-check.yml@main
     secrets:
       ACTIONS_BOT_TOKEN: ${{ secrets.ACTIONS_BOT_TOKEN }}
 ```
@@ -245,7 +245,7 @@ jobs:
                 "command": "deploy-review",
                 "permission": "write",
                 "issue_type": "pull-request",
-                "repository": "epam/ai-dial-ci",
+                "repository": "nepalevov/ai-dial-ci",
                 "static_args": [
                   "application=${{ github.event.repository.name }}"
                 ]
@@ -295,7 +295,7 @@ concurrency:
 
 jobs:
   dependency-review:
-    uses: epam/ai-dial-ci/.github/workflows/java_dependency_review.yml@main
+    uses: nepalevov/ai-dial-ci/.github/workflows/java_dependency_review.yml@main
     secrets:
       ACTIONS_BOT_TOKEN: ${{ secrets.ACTIONS_BOT_TOKEN }}
 ```

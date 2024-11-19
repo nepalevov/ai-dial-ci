@@ -52,12 +52,12 @@ Review the changes in the PR and ensure they adhere to the code quality standard
 
 ### Updating Self-Dependencies
 
-Once PR checked, ensure the self-dependencies (occurrences of `uses: epam/ai-dial-ci`) in it are updated. We don't update self-dependencies automatically, e.g. with Dependabot, so it must be done in the PR manually. You may use `update-self-dependencies.sh` script for your convenience.
+Once PR checked, ensure the self-dependencies (occurrences of `uses: nepalevov/ai-dial-ci`) in it are updated. We don't update self-dependencies automatically, e.g. with Dependabot, so it must be done in the PR manually. You may use `update-self-dependencies.sh` script for your convenience.
 
 ```console
 $ ./update-self-dependencies.sh
 Enter the next (predicted) version tag (e.g., 1.0.1): 1.9.3
-Updated all occurrences of 'epam/ai-dial-ci/' with version '1.9.3'.
+Updated all occurrences of 'nepalevov/ai-dial-ci/' with version '1.9.3'.
 $
 ```
 
