@@ -5,7 +5,7 @@ on:
     secrets:
       ACTIONS_BOT_TOKEN:
         description: "A token passed from the caller workflow"
-        required: false      
+        required: false
     inputs:
       environment_name:
         type: string
@@ -25,7 +25,7 @@ on:
         type: number
         description: 'reviewer ID'
         required: false
-        default: 20123880
+        default: 20123880 # TODO: change to epam/dial-contributors group
     outputs:
       base_url:
         description: "The environment URL"
@@ -69,16 +69,16 @@ jobs:
           else
             environment_name=${GITHUB_SHA:0:7}
           fi
-          
+
           repo_name=${GITHUB_REPOSITORY#*/}
           base_url="${repo_name}-${environment_name}.${{ inputs.domain }}"
           chat_url="https://chat-${base_url}"
-          
+
           echo "Environment Name: ${environment_name}"
           echo "Repo Name: ${repo_name}"
           echo "Base URL: ${base_url}"
           echo "AI DIAL Chat URL: ${chat_url}"
-          
+
           echo "name=${environment_name}" >> $GITHUB_OUTPUT
           echo "repo_name=${repo_name}" >> $GITHUB_OUTPUT
           echo "base_url=${base_url}" >> $GITHUB_OUTPUT
@@ -96,11 +96,11 @@ jobs:
 
   check_permission:
     runs-on: ubuntu-latest
-    environment: 
+    environment:
       name: ${{ needs.environment_settings.outputs.name }}
       url: ${{ needs.environment_settings.outputs.chat_url }}
     concurrency: ${{ needs.environment_settings.outputs.name }}
-    needs: 
+    needs:
       - environment_settings
     steps:
       - name: Check permission
@@ -109,6 +109,7 @@ jobs:
 
   dump_contexts_to_log:
     runs-on: ubuntu-latest
+    if: ${{ runner.debug == "1" }}
     steps:
       - name: Dump GitHub context
         env:
