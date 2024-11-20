@@ -1,0 +1,136 @@
+name: Create Environment
+
+on:
+  workflow_call:
+    secrets:
+      ACTIONS_BOT_TOKEN:
+        description: "A token passed from the caller workflow"
+        required: false      
+    inputs:
+      environment_name:
+        type: string
+        description: "The name of the environment to manage"
+      domain:
+        type: string
+        description: "The domain to run the environment"
+        default: "gke.test.epam-rail.com"
+      environment_create:
+        type: boolean
+        description: "Create new env or not"
+        default: false
+      environment_url:
+        type: string
+        description: "The environment URL"
+      reviewer_id:
+        type: number
+        description: 'reviewer ID'
+        required: false
+        default: 20123880
+    outputs:
+      base_url:
+        description: "The environment URL"
+        value: ${{ jobs.environment_settings.outputs.base_url }}
+      chat_url:
+        description: "The environment URL"
+        value: ${{ jobs.environment_settings.outputs.chat_url }}
+      repo_name:
+        description: "The environment name"
+        value: ${{ jobs.environment_settings.outputs.repo_name }}
+      environment_name:
+        description: "The environment name"
+        value: ${{ jobs.environment_settings.outputs.name }}
+
+jobs:
+  environment_settings:
+    runs-on: ubuntu-latest
+    outputs:
+      base_url: ${{ steps.setting.outputs.base_url }}
+      chat_url: ${{ steps.setting.outputs.chat_url }}
+      repo_name: ${{ steps.setting.outputs.repo_name }}
+      name: ${{ steps.setting.outputs.name }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          lfs: true
+
+      - name: Update environment settings
+        id: setting
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_BOT_TOKEN }}
+          INPUT_ENV: ${{ inputs.environment_name }}
+        run: |
+          echo "Configure env specific variable..."
+
+          if [ -n "$INPUT_ENV" ]; then
+            environment_name=$INPUT_ENV
+          elif [[ "${{ github.event_name }}" == "pull_request_target" || "${{ github.event_name }}" == "pull_request_target" ]]; then
+            environment_name="pr-${{ github.event.number }}"
+          else
+            environment_name=${GITHUB_SHA:0:7}
+          fi
+          
+          repo_name=${GITHUB_REPOSITORY#*/}
+          base_url="${repo_name}-${environment_name}.${{ inputs.domain }}"
+          chat_url="https://chat-${base_url}"
+          
+          echo "Environment Name: ${environment_name}"
+          echo "Repo Name: ${repo_name}"
+          echo "Base URL: ${base_url}"
+          echo "AI DIAL Chat URL: ${chat_url}"
+          
+          echo "name=${environment_name}" >> $GITHUB_OUTPUT
+          echo "repo_name=${repo_name}" >> $GITHUB_OUTPUT
+          echo "base_url=${base_url}" >> $GITHUB_OUTPUT
+          echo "chat_url=${chat_url}" >> $GITHUB_OUTPUT
+
+          if [ "${{ inputs.environment_create }}" = "true" ]; then
+          curl -L \
+            -X PUT \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/environments/${environment_name} \
+            -d '{"wait_timer": 0,"prevent_self_review": false,"deployment_branch_policy": {"protected_branches": false,"custom_branch_policies": true},"reviewers": [{"type":"User","id":${{ inputs.reviewer_id }}}]}'
+          fi
+
+  check_permission:
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ needs.environment_settings.outputs.name }}
+      url: ${{ needs.environment_settings.outputs.chat_url }}
+    concurrency: ${{ needs.environment_settings.outputs.name }}
+    needs: 
+      - environment_settings
+    steps:
+      - name: Check permission
+        run: |
+          echo "ToDo this part"
+
+  dump_contexts_to_log:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Dump job context
+        env:
+          JOB_CONTEXT: ${{ toJson(job) }}
+        run: echo "$JOB_CONTEXT"
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"
+      - name: Dump runner context
+        env:
+          RUNNER_CONTEXT: ${{ toJson(runner) }}
+        run: echo "$RUNNER_CONTEXT"
+      - name: Dump strategy context
+        env:
+          STRATEGY_CONTEXT: ${{ toJson(strategy) }}
+        run: echo "$STRATEGY_CONTEXT"
+      - name: Dump matrix context
+        env:
+          MATRIX_CONTEXT: ${{ toJson(matrix) }}
+        run: echo "$MATRIX_CONTEXT"

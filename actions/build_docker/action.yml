@@ -8,6 +8,10 @@ inputs:
     description: "Push the image to the registry"
     required: false
     default: "false"
+  push_private:
+    description: "Push the image to the registry"
+    required: false
+    default: "false"
   scan:
     description: "Scan with Trivy"
     required: false
@@ -32,6 +36,18 @@ inputs:
     required: true
   image_extra_aliases:
     description: "Extra aliases for the image, e.g. to publish to multiple registries"
+    required: false
+    default: ""
+  gcp_project_id:
+    description: "Google project ID"
+    required: false
+    default: ""  
+  gcp_workload_identity_provider:
+    description: "Google workload identity provider"
+    required: false
+    default: ""
+  gcp_service_account:
+    description: "Google service_account"
     required: false
     default: ""
   ghcr_username:
@@ -67,6 +83,22 @@ runs:
       with:
         username: ${{ inputs.dockerhub_username }}
         password: ${{ inputs.dockerhub_password }}
+    - name: Authenticate to Google Cloud
+      if: ${{ fromJSON(inputs.push_private) }} # workaround for composite jobs not being able to pass boolean inputs
+      id: auth
+      uses: google-github-actions/auth@8254fb75a33b976a221574d287e93919e6a36f70 # v2.1.6
+      with:
+        token_format: 'access_token'
+        project_id: ${{ inputs.gcp_project_id }}
+        workload_identity_provider: ${{ inputs.gcp_workload_identity_provider }}
+        service_account: ${{ inputs.gcp_service_account }}
+    - name: Login to GAR
+      if: ${{ fromJSON(inputs.push_private) }} # workaround for composite jobs not being able to pass boolean inputs
+      uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+      with:
+        registry: us-central1-docker.pkg.dev
+        username: oauth2accesstoken
+        password: ${{ steps.auth.outputs.access_token }}
     - name: Build and export to Docker
       if: ${{ fromJSON(inputs.scan) }} # workaround for composite jobs not being able to pass boolean inputs
       uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
@@ -128,7 +160,7 @@ runs:
         CONTINUE_ON_ERROR: ${{ inputs.bypass_checks }} # Hack to use the input below as a boolean
       continue-on-error: ${{ fromJSON(env.CONTINUE_ON_ERROR) }}
     - name: Build and push
-      if: ${{ fromJSON(inputs.push) }} # workaround for composite jobs not being able to pass boolean inputs
+      if: ${{ fromJSON(inputs.push_private) }} # workaround for composite jobs not being able to pass boolean inputs
       uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
       with:
         context: .
