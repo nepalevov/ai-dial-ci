@@ -123,12 +123,11 @@ jobs:
           header: gh_environment
           message: |
             > [!NOTE]
-            >**Your request for a preview environment is awaiting approval from a maintainer.**
+            >**Your request for a review environment is awaiting approval from a maintainer.**
             > Once a maintainer approves your request, the deployment will automatically initiate. Thank you for being so patient!
           GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
 
   check_approve:
-    if: ${{ inputs.operation != 'delete' }}
     runs-on: ${{ fromJSON(inputs.runs-on) }}
     needs:
       - transformer
@@ -141,17 +140,3 @@ jobs:
     steps:
       - run: |
           echo "Waiting for approve"
-
-  dump_contexts_to_log:
-    if: always()
-    # TODO: remove this after debug
-    runs-on: ${{ fromJSON(inputs.runs-on) }}
-    steps:
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
-      - name: Dump job context
-        env:
-          JOB_CONTEXT: ${{ toJson(job) }}
-        run: echo "$JOB_CONTEXT"
