@@ -84,19 +84,12 @@ jobs:
 
           echo "environment_name=${environment_name}" >>$GITHUB_OUTPUT
           echo "environment_url=${environment_url}" >>$GITHUB_OUTPUT
-
-  create_or_update_environment:
-    if: ${{ inputs.operation == 'create' }}
-    runs-on: ${{ fromJSON(inputs.runs-on) }}
-    needs:
-      - transformer
-    env:
-      GITHUB_TOKEN: ${{ secrets.ACTIONS_BOT_TOKEN }}
-      INPUT_REVIEWERS: ${{ inputs.reviewers }}
-      INPUT_ENVIRONMENT_NAME: ${{ needs.transformer.outputs.environment_name }}
-    steps:
       - name: Create or update an environment
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        env:
+          INPUT_ENVIRONMENT_NAME: ${{ steps.settings.outputs.environment_name }}
+          INPUT_REVIEWERS: ${{ inputs.reviewers }}
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_BOT_TOKEN }}
         with:
           github-token: ${{ env.GITHUB_TOKEN }}
           script: |
@@ -116,16 +109,6 @@ jobs:
                 'Accept': 'application/vnd.github+json'
               }
             });
-      - name: Post a comment
-        if: ${{ inputs.post_comments }}
-        uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
-        with:
-          header: gh_environment
-          message: |
-            > [!NOTE]
-            >**Your request for a review environment is awaiting approval from a maintainer.**
-            > Once a maintainer approves your request, the deployment will automatically initiate. Thank you for being so patient!
-          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
 
   check_approve:
     runs-on: ${{ fromJSON(inputs.runs-on) }}
