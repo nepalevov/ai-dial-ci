@@ -69,12 +69,18 @@ on:
         default: "default"
         description: "Kubernetes namespace to deploy into"
 
+      runs-on:
+        type: string
+        default: '["ubuntu-latest"]'
+        description: "Overrides job runs-on setting (json-encoded list)"
+        required: false
+
 jobs:
   helm_update:
     permissions:
       contents: "read"
       id-token: "write"
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:

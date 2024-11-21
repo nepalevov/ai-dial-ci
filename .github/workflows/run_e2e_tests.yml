@@ -11,22 +11,26 @@ on:
         type: string
         default: "development"
         description: "test repo branch"
-
       url:
         type: string
         default: ""
         description: "Chat url for e2e test"
         required: true
+      runs-on:
+        type: string
+        default: '["ubuntu-latest"]'
+        description: "Overrides job runs-on setting (json-encoded list)"
+        required: false
 
 jobs:
   e2e:
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.ref }}
-          path: 
+          path:
           lfs: true
 
       - name: Run e2e test # https://playwright.dev/docs/ci-intro#setting-up-github-actions
