@@ -39,18 +39,17 @@ on:
     outputs:
       environment_name:
         description: "The environment name"
-        value: ${{ jobs.prepare_environment.outputs.environment_name }}
+        value: ${{ jobs.transformer.outputs.environment_name }}
       environment_url:
         description: "The environment URL"
-        value: ${{ jobs.prepare_environment.outputs.environment_url }}
+        value: ${{ jobs.transformer.outputs.environment_url }}
 
 jobs:
 
-  prepare_environment:
-    if: ${{ inputs.operation == 'create' }}
+  transformer:
     runs-on: ${{ fromJSON(inputs.runs-on) }}
     outputs:
-      environment_name: ${{ steps.settings.outputs.name }}
+      environment_name: ${{ steps.settings.outputs.environment_name }}
       environment_url: ${{ steps.settings.outputs.environment_url }}
     steps:
       - name: Update environment settings
@@ -76,10 +75,12 @@ jobs:
           echo "Base domain name: ${INPUT_BASE_DOMAIN_NAME}" # TODO: remove this after debug
           echo "Environment URL: ${environment_url}"
 
-          echo "Environment name: ${environment_name}" >> $GITHUB_STEP_SUMMARY
-          echo "Repository name: ${repository_name}" >> $GITHUB_STEP_SUMMARY
-          echo "Base domain name: ${INPUT_BASE_DOMAIN_NAME}" >> $GITHUB_STEP_SUMMARY # TODO: remove this after debug
-          echo "Environment URL: ${environment_url}" >> $GITHUB_STEP_SUMMARY
+          echo "## Outputs"
+          echo "| Property            | Value                        |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------------------|------------------------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment name    | ${environment_name}          |" >> $GITHUB_STEP_SUMMARY
+          echo "| Repository name     | ${repository_name}           |" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment URL     | ${environment_url}           |" >> $GITHUB_STEP_SUMMARY
 
           echo "environment_name=${environment_name}" >>$GITHUB_OUTPUT
           echo "environment_url=${environment_url}" >>$GITHUB_OUTPUT
@@ -88,11 +89,11 @@ jobs:
     if: ${{ inputs.operation == 'create' }}
     runs-on: ${{ fromJSON(inputs.runs-on) }}
     needs:
-      - prepare_environment
+      - transformer
     env:
       GITHUB_TOKEN: ${{ secrets.ACTIONS_BOT_TOKEN }}
       INPUT_REVIEWERS: ${{ fromJSON(inputs.reviewers) }}
-      INPUT_ENVIRONMENT_NAME: ${{ needs.prepare_environment.outputs.environment_name }}
+      INPUT_ENVIRONMENT_NAME: ${{ needs.transformer.outputs.environment_name }}
     steps:
       - name: Create or update an environment
         run: |
@@ -134,13 +135,13 @@ jobs:
     if: ${{ inputs.operation != 'delete' }}
     runs-on: ${{ fromJSON(inputs.runs-on) }}
     needs:
-      - prepare_environment
+      - transformer
     concurrency:
-      group: ${{ needs.prepare_environment.outputs.environment_name }}
+      group: ${{ needs.transformer.outputs.environment_name }}
       cancel-in-progress: true
     environment:
-      name: ${{ needs.prepare_environment.outputs.environment_name }}
-      url: ${{ needs.prepare_environment.outputs.environment_url }}
+      name: ${{ needs.transformer.outputs.environment_name }}
+      url: ${{ needs.transformer.outputs.environment_url }}
     steps:
       - run: |
           echo "Waiting for approve"
