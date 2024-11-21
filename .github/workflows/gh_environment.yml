@@ -76,11 +76,11 @@ jobs:
           echo "Environment URL: ${environment_url}"
 
           echo "## Outputs"
-          echo "| Property            | Value                        |" >> $GITHUB_STEP_SUMMARY
-          echo "|---------------------|------------------------------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Environment name    | ${environment_name}          |" >> $GITHUB_STEP_SUMMARY
-          echo "| Repository name     | ${repository_name}           |" >> $GITHUB_STEP_SUMMARY
-          echo "| Environment URL     | ${environment_url}           |" >> $GITHUB_STEP_SUMMARY
+          echo "| Property            | Value                        |" >>$GITHUB_STEP_SUMMARY
+          echo "|---------------------|------------------------------|" >>$GITHUB_STEP_SUMMARY
+          echo "| Environment name    | ${environment_name}          |" >>$GITHUB_STEP_SUMMARY
+          echo "| Repository name     | ${repository_name}           |" >>$GITHUB_STEP_SUMMARY
+          echo "| Environment URL     | ${environment_url}           |" >>$GITHUB_STEP_SUMMARY
 
           echo "environment_name=${environment_name}" >>$GITHUB_OUTPUT
           echo "environment_url=${environment_url}" >>$GITHUB_OUTPUT
@@ -92,7 +92,7 @@ jobs:
       - transformer
     env:
       GITHUB_TOKEN: ${{ secrets.ACTIONS_BOT_TOKEN }}
-      INPUT_REVIEWERS: ${{ fromJSON(inputs.reviewers) }}
+      INPUT_REVIEWERS: ${{ inputs.reviewers }}
       INPUT_ENVIRONMENT_NAME: ${{ needs.transformer.outputs.environment_name }}
     steps:
       - name: Create or update an environment
