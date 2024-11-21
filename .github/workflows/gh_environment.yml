@@ -97,6 +97,7 @@ jobs:
     steps:
       - name: Create or update an environment
         run: |
+          set -x # TODO: remove after debug
           # Prepare the JSON payload
           json_payload=$(
             cat <<EOF
