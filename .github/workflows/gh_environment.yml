@@ -19,7 +19,7 @@ on:
         description: "Overrides the environment URL, completely bypassing concatenation logic. Must follow RFC 3986"
       reviewers:
         type: string
-        default: '[{"type": "User", "id": 20123880}]' # TODO: change to epam/dial-contributors user group
+        default: '[{"type": "User", "id": 20123880},{"type": "User", "id": 189285490}]' # TODO: change to epam/dial-contributors user group
         description: "A JSON-encoded list of user IDs or user-group IDs that will be designated as reviewers for the GitHub environment"
         required: false
       post_comments:
