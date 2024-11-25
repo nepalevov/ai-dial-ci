@@ -1,5 +1,9 @@
 name: Build Review Docker
 
+# This workflow should only be called from workflow which is triggered on
+# the "pull_request" event type. We should never dispatch this workflow from
+# a "pull_request_target" event.
+
 on:
   workflow_call:
     inputs:

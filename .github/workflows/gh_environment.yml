@@ -6,17 +6,20 @@ on:
       environment_name:
         type: string
         description: "The name of the GitHub environment to manage"
+        required: false
       operation:
         type: string
-        description: "The operation to perform on the GitHub environment. Can be one of `create`, `delete`"
+        description: "The operation to perform on the GitHub environment. Can be one of `plan`, `create`, `delete`"
         required: true
       base_fqdn:
         type: string
         default: "gke.test.epam-rail.com"
         description: "The base FQDN for environment deployments"
+        required: false
       environment_url:
         type: string
         description: "Overrides the environment URL, completely bypassing concatenation logic. Must follow RFC 3986"
+        required: false
       reviewers:
         type: string
         default: '[{"type": "User", "id": 20123880},{"type": "User", "id": 189285490}]' # TODO: change to epam/dial-contributors user group
@@ -29,8 +32,8 @@ on:
         required: false
     secrets:
       ACTIONS_BOT_TOKEN:
-        description: "GitHub token to perform actions on the GitHub environment"
-        required: true
+        description: "GitHub token to perform actions on the GitHub environment. Required for `operation: create`, `operation: delete`"
+        required: false
     outputs:
       environment_name:
         description: "The environment name"
@@ -54,24 +57,37 @@ jobs:
         id: settings
         env:
           INPUT_ENVIRONMENT_NAME: ${{ inputs.environment_name }}
+          INPUT_ENVIRONMENT_URL: ${{ inputs.environment_url }}
           INPUT_BASE_FQDN: ${{ inputs.base_fqdn }}
+          INPUT_REPOSITORY: ${{ github.repository }}
+          INPUT_SHA: ${{ github.sha }}
+          INPUT_EVENT_NAME: ${{ github.event_name }}
           INPUT_PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
+          #!/bin/bash
+
+          # Name election
           if [ -n "$INPUT_ENVIRONMENT_NAME" ]; then
-            environment_name=$INPUT_ENVIRONMENT_NAME
-          elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]] || [[ "$GITHUB_EVENT_NAME" == "pull_request_target" ]]; then
-            environment_name="pr-${INPUT_PR_NUMBER}"
+              environment_name=$INPUT_ENVIRONMENT_NAME
+          elif [[ "$INPUT_EVENT_NAME" == "pull_request" ]] || [[ "$INPUT_EVENT_NAME" == "pull_request_target" ]]; then
+              environment_name="pr-${INPUT_PR_NUMBER}"
           else
-            environment_name=${GITHUB_SHA:0:7}
+              environment_name=${INPUT_SHA:0:7}
           fi
 
-          repository_name=${GITHUB_REPOSITORY#*/}
-          environment_fqdn="${repository_name}-${environment_name}.${INPUT_BASE_FQDN}"
-          environment_url="https://${environment_fqdn}"
+          repository_name=${INPUT_REPOSITORY#*/}
+
+          # URL election
+          if [ -n "${INPUT_ENVIRONMENT_URL}" ]; then
+              environment_url="${INPUT_ENVIRONMENT_URL}"
+              environment_fqdn="${environment_url#*://}"
+          else
+              environment_fqdn="${repository_name}-${environment_name}.${INPUT_BASE_FQDN}"
+              environment_url="https://${environment_fqdn}"
+          fi
 
           echo "Environment name: ${environment_name}"
-          echo "Repository name: ${repository_name}"
-          echo "Base FQDN: ${INPUT_BASE_FQDN}" # TODO: remove this after debug
+          echo "Repository name: ${repository_name}" # TODO: remove this after debug
           echo "Environment FQDN: ${environment_fqdn}"
           echo "Environment URL: ${environment_url}"
 
@@ -79,7 +95,7 @@ jobs:
           echo "| Property            | Value                        |" >>$GITHUB_STEP_SUMMARY
           echo "|---------------------|------------------------------|" >>$GITHUB_STEP_SUMMARY
           echo "| Environment name    | ${environment_name}          |" >>$GITHUB_STEP_SUMMARY
-          echo "| Repository (full)   | ${GITHUB_REPOSITORY}         |" >>$GITHUB_STEP_SUMMARY # TODO: remove this after debug
+          echo "| Repository (full)   | ${INPUT_REPOSITORY}         |" >>$GITHUB_STEP_SUMMARY # TODO: remove this after debug
           echo "| Repository name     | ${repository_name}           |" >>$GITHUB_STEP_SUMMARY
           echo "| Environment FQDN    | ${environment_fqdn}          |" >>$GITHUB_STEP_SUMMARY
           echo "| Environment URL     | ${environment_url}           |" >>$GITHUB_STEP_SUMMARY
