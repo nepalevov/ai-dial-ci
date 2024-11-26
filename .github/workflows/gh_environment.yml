@@ -13,22 +13,27 @@ on:
         required: true
       base_fqdn:
         type: string
-        default: "gke.test.epam-rail.com"
         description: "The base FQDN for environment deployments"
+        default: "gke.test.epam-rail.com"
         required: false
       environment_url:
         type: string
         description: "Overrides the environment URL, completely bypassing concatenation logic. Must follow RFC 3986"
         required: false
+      require_reviewers:
+        type: boolean
+        description: "Indicates whether the environment requires approval from designated reviewers before deployment"
+        default: false
+        required: false
       reviewers:
         type: string
-        default: '[{"type": "User", "id": 20123880},{"type": "User", "id": 189285490}]' # `alexey-ban`, `bombei93`. TODO: change to epam/dial-contributors user group
         description: "A JSON-encoded list of user IDs or user-group IDs that will be designated as reviewers for the GitHub environment"
+        default: '[{"type": "User", "id": 20123880},{"type": "User", "id": 189285490}]' # `alexey-ban`, `bombei93`. TODO: change to epam/dial-contributors user group
         required: false
       runs-on:
         type: string
-        default: '["ubuntu-latest"]'
         description: "Overrides job runs-on settings (json-encoded list)"
+        default: '["ubuntu-latest"]'
         required: false
     secrets:
       ACTIONS_BOT_TOKEN:
@@ -114,11 +119,12 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         env:
           INPUT_ENVIRONMENT_NAME: ${{ needs.groundskeeper.outputs.environment_name }}
-          INPUT_REVIEWERS: ${{ inputs.reviewers }}
+          INPUT_REVIEWERS: ${{ inputs.require_reviewers && inputs.reviewers || '' }}
           GITHUB_TOKEN: ${{ secrets.ACTIONS_BOT_TOKEN }}
         with:
           github-token: ${{ env.GITHUB_TOKEN }}
           script: |
+            const reviewers = process.env.INPUT_REVIEWERS ? JSON.parse(process.env.INPUT_REVIEWERS) : null;
             await github.request('PUT /repos/{owner}/{repo}/environments/{environment_name}', {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -126,7 +132,7 @@ jobs:
               wait_timer: 0,
               prevent_self_review: false,
               deployment_branch_policy: null,
-              reviewers: JSON.parse(process.env.INPUT_REVIEWERS),
+              reviewers: reviewers || null,
               headers: {
                 'X-GitHub-Api-Version': '2022-11-28',
                 'Accept': 'application/vnd.github+json'
