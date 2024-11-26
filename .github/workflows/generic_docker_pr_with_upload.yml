@@ -1,8 +1,4 @@
-name: Build Review Docker
-
-# This workflow should only be called from workflow which is triggered on
-# the "pull_request" event type. We should never dispatch this workflow from
-# a "pull_request_target" event.
+name: Generic Docker PR with Upload
 
 on:
   workflow_call:
@@ -27,6 +23,10 @@ on:
         type: boolean
         default: false
         description: Do not fail pipeline if ORT scan failed
+      ort_version:
+        type: string
+        default: "latest"
+        description: ORT version to use
       enable_trivy:
         type: boolean
         default: true
