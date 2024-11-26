@@ -80,10 +80,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       # `contents` for checkout code
-      # `id-token` for ???
+      # `packages` for uploading container image to GHCR
       # `security-events` for uploading trivy results to GHAS
       contents: read
-      id-token: write
+      packages: write
       security-events: write
     outputs:
         image_registry: ${{ env.IMAGE_REGISTRY }}
