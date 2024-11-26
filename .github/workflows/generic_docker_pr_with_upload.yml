@@ -35,25 +35,35 @@ on:
         type: boolean
         default: false
         description: Do not fail pipeline if Trivy failed
-      environment_name:
+      image_name_suffix:
         type: string
-        description: "The name of the environment to manage"
-        required: true
+        description: The suffix for the name of the Docker image
+        default: test
+        required: false
+      image_repository:
+        type: string
+        description: The name of the Docker image repository
+        default: ${{ github.repository }}
+        required: false
+      image_tag:
+        type: string
+        description: Docker image tag
+        default: ${{ github.sha }}
+        required: false
 
-    outputs: # ToDo get outputs from job not coded same values
+    outputs:
       image_registry:
         description: "Docker image registry"
-        value: ""
+        value: ${{ jobs.docker_build.outputs.image_registry }}
       image_repository:
         description: "Docker image repository"
-        value: ""
+        value: ${{ jobs.docker_build.outputs.image_repository }}
       image_tag:
         description: "Docker image tag"
-        value: ${{ github.sha }}
+        value: ${{ jobs.docker_build.outputs.image_tag }}
 
 env:
-  IMAGE_NAME: ${{ github.repository }}/test
-  IMAGE_TAG: ${{ github.sha }}
+  IMAGE_REGISTRY: ghcr.io
 
 jobs:
   test:
@@ -69,11 +79,16 @@ jobs:
   docker_build:
     runs-on: ubuntu-latest
     permissions:
+      # `contents` for checkout code
       # `id-token` for ???
       # `security-events` for uploading trivy results to GHAS
       contents: read
       id-token: write
       security-events: write
+    outputs:
+        image_registry: ${{ env.IMAGE_REGISTRY }}
+        image_repository: ${{ inputs.image_repository }}/${{ inputs.image_name_suffix }}
+        image_tag: ${{ inputs.image_tag }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -83,7 +98,7 @@ jobs:
         with:
           push: true
           push_ghcr: true
-          image_name: ${{ env.IMAGE_NAME }}
-          image_tag: ${{ env.IMAGE_TAG }}
+          image_name: ${{ env.IMAGE_REGISTRY }}/${{ inputs.image_repository }}/${{ inputs.image_name_suffix }}
+          image_tag: ${{ inputs.image_tag }}
           scan: ${{ inputs.enable_trivy }}
           bypass_checks: ${{ inputs.bypass_trivy }}
