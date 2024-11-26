@@ -125,6 +125,7 @@ jobs:
               environment_name: process.env.INPUT_ENVIRONMENT_NAME,
               wait_timer: 0,
               prevent_self_review: false,
+              deployment_branch_policy: null,
               reviewers: JSON.parse(process.env.INPUT_REVIEWERS),
               headers: {
                 'X-GitHub-Api-Version': '2022-11-28',
