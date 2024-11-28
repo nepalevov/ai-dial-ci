@@ -130,7 +130,7 @@ runs:
         load: true
         outputs: |
           ${{ inputs.custom_outputs }}
-          ${{ fromJSON(inputs.upload_artifact) && format('type=docker,dest=/tmp/{0}.tar', inputs.image_tag) || '' }}
+          ${{ fromJSON(inputs.upload_artifact) && format('type=oci,dest=/tmp/{0}.tar', inputs.image_tag) || '' }}
         tags: |
           ${{ inputs.image_name }}:${{ inputs.image_tag }}
           ${{ inputs.image_extra_aliases }}
@@ -152,7 +152,7 @@ runs:
       id: upload_artifact
       with:
         name: ${{ inputs.image_tag }}
-        path: /tmp/${{ inputs.image_tag }}
+        path: /tmp/${{ inputs.image_tag }}.tar
         retention-days: 1
     - name: Run Trivy vulnerability scanner (stdout, table view, no fail)
       if: ${{ fromJSON(inputs.scan) }} # workaround for composite jobs not being able to pass boolean inputs
