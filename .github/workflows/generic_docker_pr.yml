@@ -67,8 +67,7 @@ jobs:
         id: build
         with:
           image_name: ghcr.io/${{ env.IMAGE_NAME }}
-          image_tag: test
-          # image_tag: ${{ github.sha }}
+          image_tag: ${{ github.sha }}
           scan: ${{ inputs.enable_trivy }}
           bypass_checks: ${{ inputs.bypass_trivy }}
           upload_artifact: true
