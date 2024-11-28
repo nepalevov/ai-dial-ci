@@ -129,7 +129,7 @@ runs:
         load: true
         context: .
         outputs: |
-          ${{ fromJSON(inputs.upload_artifact) && format('type=oci,dest=/tmp/{0}.tar', inputs.image_tag) || '' }}
+          ${{ fromJSON(inputs.upload_artifact) && format('type=docker,dest=/tmp/{0}.tar', inputs.image_tag) || '' }}
           ${{ inputs.custom_outputs }}
         tags: |
           ${{ inputs.image_name }}:${{ inputs.image_tag }}
