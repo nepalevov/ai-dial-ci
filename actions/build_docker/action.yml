@@ -120,17 +120,17 @@ runs:
         registry: us-central1-docker.pkg.dev
         username: oauth2accesstoken
         password: ${{ steps.auth.outputs.access_token }}
-    # - name: Set up Docker Buildx
-    #   uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
     - name: Build and export
       if: ${{ fromJSON(inputs.scan) }} # workaround for composite jobs not being able to pass boolean inputs
       uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
       with:
         context: .
-        load: true
         outputs: |
-          ${{ inputs.custom_outputs }}
+          type=docker
           ${{ fromJSON(inputs.upload_artifact) && format('type=oci,dest=/tmp/{0}.tar', inputs.image_tag) || '' }}
+          ${{ inputs.custom_outputs }}
         tags: |
           ${{ inputs.image_name }}:${{ inputs.image_tag }}
           ${{ inputs.image_extra_aliases }}
