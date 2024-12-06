@@ -100,7 +100,7 @@ jobs:
           echo "| Property            | Value                        |" >>$GITHUB_STEP_SUMMARY
           echo "|---------------------|------------------------------|" >>$GITHUB_STEP_SUMMARY
           echo "| Environment name    | ${environment_name}          |" >>$GITHUB_STEP_SUMMARY
-          echo "| Repository (full)   | ${INPUT_REPOSITORY}         |" >>$GITHUB_STEP_SUMMARY # TODO: remove this after debug
+          echo "| Repository (full)   | ${INPUT_REPOSITORY}          |" >>$GITHUB_STEP_SUMMARY # TODO: remove this after debug
           echo "| Repository name     | ${repository_name}           |" >>$GITHUB_STEP_SUMMARY
           echo "| Environment FQDN    | ${environment_fqdn}          |" >>$GITHUB_STEP_SUMMARY
           echo "| Environment URL     | ${environment_url}           |" >>$GITHUB_STEP_SUMMARY

@@ -1,0 +1,22 @@
+      - name: Post a comment
+        if: ${{ inputs.operation == 'create' && inputs.post_comments }}
+        uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_BOT_TOKEN }}
+        with:
+          header: gh_environment
+          message: |
+            > [!NOTE]
+            >**Your request for a review environment is awaiting approval from a maintainer.**
+            > Once a maintainer approves your request, the deployment will automatically initiate. Thank you for being so patient!
+          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+
+      - name: Delete a comment
+        if: ${{ inputs.operation != 'create' && inputs.post_comments }}
+        uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_BOT_TOKEN }}
+        with:
+          header: gh_environment
+          delete: true
+          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
