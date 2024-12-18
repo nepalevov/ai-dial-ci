@@ -177,7 +177,6 @@ on:
 jobs:
   run_tests:
     uses: nepalevov/ai-dial-ci/.github/workflows/generic_docker_pr.yml@main
-    secrets: inherit
 ```
 
 ### Release Workflow (Generic, Docker)
